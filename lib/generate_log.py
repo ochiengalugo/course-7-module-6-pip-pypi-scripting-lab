@@ -1,42 +1,31 @@
 from datetime import datetime
-import requests
+import os
 
-def fetch_data():
-    # URL provided in Step 4 of the lab instructions
-    url = "https://jsonplaceholder.typicode.com/posts/1"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"Failed to fetch data. Status code: {response.status_code}")
-            return None
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
-
-def main():
-    # Fetch the API data
-    post_data = fetch_data()
+def generate_log(log_data):
+    # 1. Ensure the input is strictly a list (Raises ValueError if invalid)
+    if not isinstance(log_data, list):
+        raise ValueError("Input must be a list of log entries.")
     
-    if post_data:
-        # Define mock log entry data matching Step 2 instructions
-        log_data = ["User logged in", "User updated profile", "Report exported"]
-        
-        # Format the unique filename: log_YYYY-MM-DD_HH-MM-SS.txt
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = f"log_{timestamp}.txt"
-        
-        # Write the log data and the fetched API title to the file
-        with open(filename, "w") as file:
-            for entry in log_data:
-                file.write(f"{entry}\n")
+    # 2. Strict filename pattern matching: log_YYYYMMDD.txt
+    timestamp = datetime.now().strftime("%Y%m%D").replace("/", "") 
+    # Or cleaner:
+    timestamp = datetime.now().strftime("%Y%m%d")
+    filename = f"log_{timestamp}.txt"
+    
+    # 3. Write contents directly to the file (handles empty lists cleanly)
+    with open(filename, "w") as file:
+        for entry in log_data:
+            file.write(f"{entry}\n")
             
-            # Appending API content as requested in Step 4
-            api_title = post_data.get("title", "No title found")
-            file.write(f"Fetched Post Title: {api_title}\n")
-            
-        print(f"Log written to {filename}")
+    # 4. Print confirmation message including the filename
+    print(f"Success: Log file created successfully at {filename}")
+    
+    return filename
 
 if __name__ == "__main__":
-    main()
+    # Test sample data locally to see it work
+    sample_data = ["User logged in", "User updated profile", "Report exported"]
+    try:
+        generate_log(sample_data)
+    except Exception as e:
+        print(f"Error: {e}")
